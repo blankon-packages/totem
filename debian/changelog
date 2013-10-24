@@ -1,8 +1,13 @@
-totem (3.10.1-0blankon1) suroboyo; urgency=low
+totem (3.10.1-1blankon1) suroboyo; urgency=low
 
-  * New Upstream release
+  [ Andreas Henriksson ]
+  * New upstream release.
+  * Bump totem-pl-parser build-dependency to >= 3.9.92
 
- -- mijortsa <azis.astrojim@surabaya.di.blankon.in>  Tue, 15 Oct 2013 20:47:06 +0700
+  [ Mahyuddin Idram Ahmad ]
+  * New upstream release
+
+ -- Mahyuddin Idram Ahmad <dotovr@di.blankon.in>  Thu, 24 Oct 2013 20:48:09 +0700
 
 totem (3.8.2-1blankon1) suroboyo; urgency=low
 
