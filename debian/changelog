@@ -1,19 +1,42 @@
 totem (3.10.1-1blankon1) suroboyo; urgency=low
 
+  * New upstream release
+
+ -- Mahyuddin Idram Ahmad <dotovr@di.blankon.in>  Sat, 16 Nov 2013 20:22:43 +0700
+
+totem (3.10.1-1) experimental; urgency=low
+
   [ Andreas Henriksson ]
   * New upstream release.
   * Bump totem-pl-parser build-dependency to >= 3.9.92
 
-  [ Mahyuddin Idram Ahmad ]
-  * New upstream release
+  [ Sjoerd Simons ]
+  * Build against clutter 1.16
 
- -- Mahyuddin Idram Ahmad <dotovr@di.blankon.in>  Thu, 24 Oct 2013 20:48:09 +0700
+ -- Sjoerd Simons <sjoerd@debian.org>  Wed, 06 Nov 2013 22:35:20 +0100
 
-totem (3.8.2-1blankon1) suroboyo; urgency=low
+totem (3.8.2-3) unstable; urgency=low
 
-  * New Upstream Release 
+  * Switch gstreamer1.0-plugins-bad Recommends to Depends. The 'scaletempo'
+    plugin shipped by gstreamer1.0-plugins-bad is now mandatory and totem
+    refuses to start without it. Closes: #721374
+  * Add Recommends on grilo-plugins-0.2 which is required by the Browse and
+    Search sidebar.
 
- -- Rahman Yusri Aftian <aftian@di.blankon.in>  Thu, 11 Jul 2013 18:14:21 +0700
+ -- Michael Biebl <biebl@debian.org>  Sun, 01 Sep 2013 19:13:45 +0200
+
+totem (3.8.2-2) unstable; urgency=low
+
+  [ Jeremy Bicha ]
+  * debian/control.in:
+    - Don't build-depend on scrollkeeper
+
+  [ Michael Biebl ]
+  * Upload to unstable.
+  * Remove Build-Depends on librsvg2-common, librsvg2-dev already depends on
+    that.
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 23 Aug 2013 20:05:37 +0200
 
 totem (3.8.2-1) experimental; urgency=low
 
@@ -31,23 +54,11 @@ totem (3.8.2-1) experimental; urgency=low
 
  -- Andreas Henriksson <andreas@fatal.se>  Thu, 13 Jun 2013 13:38:50 +0200
 
-totem (3.8.0-1blankon1) suroboyo; urgency=low
-
-  * New upstream release.
-
- -- Aris Febrianto <ariesfebrianto@gmail.com>  Fri, 29 Mar 2013 14:26:36 +0700
-
 totem (3.8.0-1) experimental; urgency=low
 
   * New upstream release.
 
  -- Emilio Pozuelo Monfort <pochu@debian.org>  Thu, 28 Mar 2013 02:03:59 +0100
-
-totem (3.7.93-1blankon1) suroboyo; urgency=low
-
-  * New upstream release
-
- -- mijortsa <azis.astrojim@surabaya.di.blankon.in>  Wed, 27 Mar 2013 15:55:02 +0700
 
 totem (3.7.93-1) experimental; urgency=low
 
@@ -165,6 +176,18 @@ totem (3.2.1-1) experimental; urgency=low
   * Replace python-gobject dependencies by python-gi.
 
  -- Michael Biebl <biebl@debian.org>  Sun, 27 Nov 2011 06:21:34 +0100
+
+totem (3.0.1-9) unstable; urgency=low
+
+  [ Josselin Mouette ]
+  * Enable all hardening flags. Closes: #613763.
+  * Add corresponding build-dependency on a recent dpkg-dev.
+  * Add missing epochs on libxrandr and libxxf86vm build-dependencies.
+
+  [ Michael Biebl ]
+  * Build against tracker 0.16.
+
+ -- Michael Biebl <biebl@debian.org>  Tue, 30 Jul 2013 14:38:30 +0200
 
 totem (3.0.1-8) unstable; urgency=low
 
