@@ -1,2 +1,2 @@
 version=3
-http://download.gnome.org/sources/totem/([\d\.]+[02468])/totem-([\d\.]+)\.tar\.xz
+ftp://ftp.gnome.org/pub/GNOME/sources/gnome-music/([\d\.]+[02468])/gnome-music-(.*)\.tar\.xz
