@@ -1,0 +1,9 @@
+correct_desktop_mimetypes.patch
+91_quicklist_entries.patch
+ubuntu-grilo-filesystem.patch
+ubuntu-use-traditional-titlebars.patch
+traditional_menus.patch
+0001-totem-open-location-Respect-gtk-dialogs-use-header-s.patch
+0002-preferences-Respect-gtk-dialogs-use-header-setting.patch
+0003-totem-movie-properties-Respect-gtk-dialogs-use-heade.patch
+disable-thumbnail-caching

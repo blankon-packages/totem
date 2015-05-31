@@ -1,0 +1,45 @@
+From d98d0cc84a2b41e39483c752c7bfd5a9611241db Mon Sep 17 00:00:00 2001
+From: Iain Lane <iain@orangesquash.org.uk>
+Date: Wed, 11 Feb 2015 12:24:55 +0000
+Subject: [PATCH 3/3] totem-movie-properties: Respect gtk-dialogs-use-header
+ setting
+
+---
+ src/plugins/properties/totem-movie-properties.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/src/plugins/properties/totem-movie-properties.c b/src/plugins/properties/totem-movie-properties.c
+index bda27b7..7fc2cab 100644
+--- a/src/plugins/properties/totem-movie-properties.c
++++ b/src/plugins/properties/totem-movie-properties.c
+@@ -248,6 +248,8 @@ impl_activate (PeasActivatable *plugin)
+ 	GtkWindow *parent;
+ 	GMenu *menu;
+ 	GMenuItem *item;
++	GtkDialogFlags flags;
++	gboolean use_header;
+ 	const char * const accels[] = { "<Primary>p", "View", NULL };
+ 
+ 	pi = TOTEM_MOVIE_PROPERTIES_PLUGIN (plugin);
+@@ -258,9 +260,17 @@ impl_activate (PeasActivatable *plugin)
+ 	gtk_widget_set_sensitive (pi->priv->props, FALSE);
+ 
+ 	parent = totem_object_get_main_window (totem);
++
++	flags = GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT;
++	g_object_get (gtk_settings_get_default (),
++			"gtk-dialogs-use-header", &use_header,
++			NULL);
++	if (use_header)
++		flags |= GTK_DIALOG_USE_HEADER_BAR;
++
+ 	pi->priv->dialog = gtk_dialog_new_with_buttons (_("Properties"),
+ 							parent,
+-							GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_USE_HEADER_BAR,
++							flags,
+ 							NULL,
+ 							GTK_RESPONSE_CLOSE,
+ 							NULL);
+-- 
+2.1.4
+

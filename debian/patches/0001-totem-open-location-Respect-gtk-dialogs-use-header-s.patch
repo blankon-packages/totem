@@ -1,0 +1,33 @@
+From 9b3cd95c083d9212d1b9b76208e8d472aeeea4b6 Mon Sep 17 00:00:00 2001
+From: Iain Lane <iain@orangesquash.org.uk>
+Date: Wed, 11 Feb 2015 12:18:45 +0000
+Subject: [PATCH 1/3] totem-open-location: Respect gtk-dialogs-use-header
+ setting
+
+---
+ src/totem-open-location.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/totem-open-location.c b/src/totem-open-location.c
+index ea26982..d2714a3 100644
+--- a/src/totem-open-location.c
++++ b/src/totem-open-location.c
+@@ -171,9 +171,14 @@ totem_open_location_new (void)
+ 	GtkEntryCompletion *completion;
+ 	GtkTreeModel *model;
+ 	GList *recent_items, *streams_recent_items = NULL;
++	gboolean use_header;
++
++	g_object_get (gtk_settings_get_default (),
++				"gtk-dialogs-use-header", &use_header,
++				NULL);
+ 
+ 	open_location = TOTEM_OPEN_LOCATION (g_object_new (TOTEM_TYPE_OPEN_LOCATION,
+-							   "use-header-bar", 1, NULL));
++							   "use-header-bar", use_header, NULL));
+ 
+ 	if (open_location->priv->uri_container == NULL) {
+ 		g_object_unref (open_location);
+-- 
+2.1.4
+

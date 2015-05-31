@@ -1,0 +1,100 @@
+gedit From ccb999d0b54c30eb8b8f0a03d450fb60a7a15a4c Mon Sep 17 00:00:00 2001
+
+From d61bc1e6141c6680582906f69dbcdd3a532a6d00 Mon Sep 17 00:00:00 2001
+From: Tim Lunn <tim@feathertop.org>
+Date: Fri, 21 Nov 2014 08:21:38 +1100
+Subject: [PATCH] Use traditional headerbar on not GNOME DE's
+
+---
+ data/totem.ui      |  1 +
+ src/totem-grilo.c  |  9 ++++++---
+ src/totem-object.c | 16 +++++++++++++---
+ 3 files changed, 20 insertions(+), 6 deletions(-)
+
+Index: b/data/totem.ui
+===================================================================
+--- a/data/totem.ui
++++ b/data/totem.ui
+@@ -217,6 +217,7 @@
+             <property name="expand">True</property>
+             <property name="fill">True</property>
+             <property name="position">0</property>
++            <property name="pack-type">end</property>
+           </packing>
+         </child>
+       </object>
+Index: b/src/totem-grilo.c
+===================================================================
+--- a/src/totem-grilo.c
++++ b/src/totem-grilo.c
+@@ -2227,7 +2227,9 @@
+ {
+ 	GtkAdjustment *adj;
+ 	const char const * select_all_accels[] = { "<Primary>A", NULL };
++	const char* session;
+ 
++	session = g_getenv ("XDG_CURRENT_DESKTOP");
+ 	/* Search */
+ 	gtk_search_bar_connect_entry (GTK_SEARCH_BAR (self->priv->search_bar),
+ 				      totem_search_entry_get_entry (TOTEM_SEARCH_ENTRY (self->priv->search_entry)));
+@@ -2279,9 +2281,10 @@
+ 	g_object_bind_property (self->priv->header, "select-mode",
+ 				self->priv->browser, "selection-mode",
+ 				G_BINDING_BIDIRECTIONAL);
+-	g_object_bind_property (self->priv->header, "select-mode",
+-				self->priv->header, "show-close-button",
+-				G_BINDING_INVERT_BOOLEAN);
++	if (session && strstr (session, "GNOME"))
++		g_object_bind_property (self->priv->header, "select-mode",
++					self->priv->header, "show-close-button",
++					G_BINDING_INVERT_BOOLEAN);
+ 
+ 	g_signal_connect (self->priv->browser, "view-selection-changed",
+ 			  G_CALLBACK (view_selection_changed_cb), self);
+Index: b/src/totem-object.c
+===================================================================
+--- a/src/totem-object.c
++++ b/src/totem-object.c
+@@ -3601,7 +3601,10 @@
+ 	char *filename;
+ 	GError *err = NULL;
+ 	GtkWidget *vbox;
++	GtkWidget *headerbox;
+ 	GdkRGBA black;
++	gboolean set_titlebar;
++	const char* session;
+ 
+ 	filename = g_build_filename (totem_dot_dir (), "state.ini", NULL);
+ 	keyfile = g_key_file_new ();
+@@ -3651,16 +3654,28 @@
+ 	gtk_widget_override_background_color (vbox, (GTK_STATE_FLAG_FOCUSED << 1), &black);
+ 
+ 	/* Headerbar */
++	session = g_getenv ("XDG_CURRENT_DESKTOP");
++	set_titlebar = session && strstr (session, "GNOME");
++
+ 	totem->header = g_object_new (TOTEM_TYPE_MAIN_TOOLBAR,
+ 				      "show-search-button", TRUE,
+ 				      "show-select-button", TRUE,
+-				      "show-close-button", TRUE,
++				      "show-close-button", set_titlebar,
+ 				      "title", _("Videos"),
+ 				      NULL);
+ 	g_signal_connect (G_OBJECT (totem->header), "back-clicked",
+ 			  G_CALLBACK (back_button_clicked_cb), totem);
+-	gtk_window_set_titlebar (GTK_WINDOW (totem->win), totem->header);
+-
++	if (set_titlebar)
++		gtk_window_set_titlebar (GTK_WINDOW (totem->win), totem->header);
++	else {
++		headerbox = GTK_WIDGET (gtk_builder_get_object (totem->xml, "totem_main_vbox"));
++		gtk_box_pack_start (GTK_BOX(headerbox), totem->header, FALSE, FALSE, 0);
++		g_object_bind_property (totem,
++				"fullscreen",
++				totem->header,
++				"visible",
++				G_BINDING_INVERT_BOOLEAN);
++	}
+ 	return;
+ }
+ 

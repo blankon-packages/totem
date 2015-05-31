@@ -1,0 +1,344 @@
+From 0a99cecc6af72a8d2c9d26537fd39209ef08b905 Mon Sep 17 00:00:00 2001
+From: Tim Lunn <tim@feathertop.org>
+Date: Sun, 30 Nov 2014 08:18:41 +1100
+Subject: [PATCH] Add support for traditional menus
+
+---
+ data/Makefile.am   |   3 +-
+ data/menu.ui       | 174 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/totem-menu.c   |  51 ++++++++++++++++
+ src/totem-menu.h   |   3 +
+ src/totem-object.c |  27 +++++----
+ 5 files changed, 246 insertions(+), 12 deletions(-)
+ create mode 100644 data/menu.ui
+
+Index: totem-3.16.0/data/Makefile.am
+===================================================================
+--- totem-3.16.0.orig/data/Makefile.am
++++ totem-3.16.0/data/Makefile.am
+@@ -19,7 +19,8 @@ stuff_DATA =				\
+ 	preferences.ui			\
+ 	properties.ui			\
+ 	uri.ui				\
+-	controls.ui
++	controls.ui          \
++	menu.ui
+ EXTRA_DIST += $(stuff_DATA)
+ 
+ # Icons
+Index: totem-3.16.0/data/menu.ui
+===================================================================
+--- /dev/null
++++ totem-3.16.0/data/menu.ui
+@@ -0,0 +1,174 @@
++<?xml version="1.0" ?>
++<!--*- mode: xml -*--><!DOCTYPE glade-interface
++  SYSTEM 'http://glade.gnome.org/glade-2.0.dtd'>
++<interface>
++<requires lib="gtk+" version="3.11"/>
++
++<menu id="menubar">
++  <submenu>
++    <attribute name="label" translatable="yes">_Movie</attribute>
++	<section>
++		<item>
++			<attribute name="label" translatable="yes">Add _Local Video…</attribute>
++			<attribute name="action">app.open</attribute>
++			<attribute name="accel">&lt;Ctrl&gt;O</attribute>
++		</item>
++		<item>
++			<attribute name="label" translatable="yes">Add _Web Video…</attribute>
++			<attribute name="action">app.open-location</attribute>
++			<attribute name="accel">&lt;Ctrl&gt;L</attribute>
++		</item>
++		<section id="save-placeholder"/>
++	</section>
++	<section>
++		<section id="burn-placeholder"/>
++	</section>
++	<section>
++		<section id="properties-placeholder"/>
++	</section>
++	<section>
++		<item>
++			<attribute name="label" translatable="yes">_Eject</attribute>
++			<attribute name="action">app.eject</attribute>
++			<attribute name="accel">&lt;Ctrl&gt;E</attribute>
++		</item>
++	</section>
++	<section>
++		<item>
++			<attribute name="label" translatable="yes">_Play / Pause</attribute>
++			<attribute name="action">app.play</attribute>
++			<attribute name="accel">&lt;Ctrl&gt;space</attribute>
++		</item>
++	</section>
++	<section>
++		<item>
++			<attribute name="label" translatable="yes">_Quit</attribute>
++			<attribute name="action">app.quit</attribute>
++			<attribute name="accel">&lt;Ctrl&gt;Q</attribute>
++		</item>
++	</section>
++  </submenu>
++  <submenu>
++    <attribute name="label" translatable="yes">_Edit</attribute>
++	<section>
++		<item>
++			<attribute name="label" translatable="yes">_Repeat</attribute>
++			<attribute name="action">app.repeat</attribute>
++		</item>
++	</section>
++	<section>
++		<section id="screenshot-placeholder"/>
++	</section>
++	<section>
++	    <item>
++			<attribute name="label" translatable="yes">Prefere_nces</attribute>
++			<attribute name="action">app.preferences</attribute>
++		</item>
++	</section>
++  </submenu>
++  <submenu>
++    <attribute name="label" translatable="yes">_View</attribute>
++	<section>
++		<submenu>
++			<attribute name="label" translatable="yes">_Aspect Ratio</attribute>
++			<section>
++				<item>
++					<attribute name="label" translatable="yes" comments="Translators: an entry in the 'Aspect Ratio' menu, used to choose the displayed aspect ratio of a video" context="Aspect ratio">Auto</attribute>
++					<attribute name="action">app.aspect-ratio</attribute>
++					<attribute name="target" type="i">0</attribute>
++				</item>
++				<item>
++					<attribute name="label" translatable="yes" comments="Translators: an entry in the 'Aspect Ratio' menu, used to choose the displayed aspect ratio of a video" context="Aspect ratio">Square</attribute>
++					<attribute name="action">app.aspect-ratio</attribute>
++					<attribute name="target" type="i">1</attribute>
++				</item>
++				<item>
++					<attribute name="label" translatable="yes" comments="Translators: an entry in the 'Aspect Ratio' menu, used to choose the displayed aspect ratio of a video" context="Aspect ratio">4∶3 (TV)</attribute>
++					<attribute name="action">app.aspect-ratio</attribute>
++					<attribute name="target" type="i">2</attribute>
++				</item>
++				<item>
++					<attribute name="label" translatable="yes" comments="Translators: an entry in the 'Aspect Ratio' menu, used to choose the displayed aspect ratio of a video" context="Aspect ratio">16∶9 (Widescreen)</attribute>
++					<attribute name="action">app.aspect-ratio</attribute>
++					<attribute name="target" type="i">3</attribute>
++				</item>
++				<item>
++					<attribute name="label" translatable="yes" comments="Translators: an entry in the 'Aspect Ratio' menu, used to choose the displayed aspect ratio of a video" context="Aspect ratio">2.11∶1 (DVB)</attribute>
++					<attribute name="action">app.aspect-ratio</attribute>
++					<attribute name="target" type="i">4</attribute>
++				</item>
++			</section>
++		</submenu>
++		<item>
++			<attribute name="label" translatable="yes">Zoom In</attribute>
++			<attribute name="action">app.zoom</attribute>
++		</item>
++		<section id="rotation-placeholder"/>
++		<item>
++			<attribute name="label" translatable="yes">Switch An_gles</attribute>
++			<attribute name="action">app.next-angle</attribute>
++			<attribute name="accel">&lt;Ctrl&gt;G</attribute>
++		</item>
++	</section>
++	<section>
++		<submenu>
++			<attribute name="label" translatable="yes">_Languages</attribute>
++			<section id="languages-placeholder"/>
++		</submenu>
++		<submenu>
++			<attribute name="label" translatable="yes">S_ubtitles</attribute>
++			<section>
++				<item>
++					<attribute name="label" translatable="yes">_Select Text Subtitles…</attribute>
++					<attribute name="action">app.select-subtitle</attribute>
++				</item>
++				<section id="subtitle-download-placeholder"/>
++				<section id="subtitles-placeholder"/>
++			</section>
++		</submenu>
++	</section>
++
++  </submenu>
++
++  <submenu>
++    <attribute name="label" translatable="yes">_Go</attribute>
++	<section>
++		<item>
++			<attribute name="label" translatable="yes">_DVD Menu</attribute>
++			<attribute name="action">app.dvd-root-menu</attribute>
++			<attribute name="accel">&lt;Ctrl&gt;M</attribute>
++		</item>
++		<item>
++			<attribute name="label" translatable="yes">_Title Menu</attribute>
++			<attribute name="action">app.dvd-title-menu</attribute>
++		</item>
++		<item>
++			<attribute name="label" translatable="yes">A_udio Menu</attribute>
++			<attribute name="action">app.dvd-audio-menu</attribute>
++		</item>
++		<item>
++			<attribute name="label" translatable="yes">_Angle Menu</attribute>
++			<attribute name="action">app.dvd-angle-menu</attribute>
++		</item>
++		<item>
++			<attribute name="label" translatable="yes">_Chapter Menu</attribute>
++			<attribute name="action">app.dvd-chapter-menu</attribute>
++		</item>
++	</section>
++	<section>
++		<section id="skipto-placeholder"/>
++	</section>
++  </submenu>
++  <submenu>
++	<attribute name="label" translatable="yes">_Help</attribute>
++	<section>
++		<item>
++			<attribute name="label" translatable="yes">_Contents</attribute>
++			<attribute name="action">app.help</attribute>
++			<attribute name="accel">F1</attribute>
++		</item>
++	</section>
++  </submenu>
++</menu>
++
++</interface>
+Index: totem-3.16.0/src/totem-menu.c
+===================================================================
+--- totem-3.16.0.orig/src/totem-menu.c
++++ totem-3.16.0/src/totem-menu.c
+@@ -329,6 +329,28 @@ totem_app_actions_setup (Totem *totem)
+ 	g_action_map_add_action_entries (G_ACTION_MAP (totem), app_entries, G_N_ELEMENTS (app_entries), totem);
+ }
+ 
++gboolean
++totem_application_has_traditional_menus (Totem *totem)
++{
++   GdkDisplay *display;
++   GdkScreen *screen;
++   GtkSettings *settings;
++   gboolean show_app_menu;
++   gboolean show_menubar;
++
++   g_return_val_if_fail (TOTEM_IS_OBJECT (totem), FALSE);
++
++   display = gdk_display_get_default ();
++   screen = gdk_display_get_default_screen (display);
++   settings = gtk_settings_get_for_screen (screen);
++   g_object_get (G_OBJECT (settings),
++             "gtk-shell-shows-app-menu", &show_app_menu,
++             "gtk-shell-shows-menubar", &show_menubar,
++            NULL);
++
++   return !show_app_menu || show_menubar;
++}
++
+ void
+ totem_app_menu_setup (Totem *totem)
+ {
+@@ -348,6 +370,35 @@ totem_app_menu_setup (Totem *totem)
+ 	gtk_window_set_application (GTK_WINDOW (totem->win), GTK_APPLICATION (totem));
+ }
+ 
++void
++totem_menu_setup (Totem *totem)
++{
++    char *accels[] = { NULL, NULL };
++
++    GMenuModel *menu;
++    GtkBuilder *builder;
++    GError *error = NULL;
++    const char * filename;
++
++    filename = totem_interface_get_full_path("menu.ui");
++
++    builder = gtk_builder_new ();
++    gtk_builder_add_from_file (builder, filename, &error);
++    g_assert_no_error (error);
++
++    menu = G_MENU_MODEL (gtk_builder_get_object (builder, "menubar"));
++    gtk_application_set_menubar (GTK_APPLICATION(totem), menu);
++
++	/* FIXME: https://bugzilla.gnome.org/show_bug.cgi?id=700085 */
++	accels[0] = "<Primary>G";
++	gtk_application_set_accels_for_action (GTK_APPLICATION (totem), "app.next-angle", (const char * const *) accels);
++	accels[0] = "<Primary>M";
++	gtk_application_set_accels_for_action (GTK_APPLICATION (totem), "app.root-menu", (const char * const *) accels);
++	accels[0] = "<Primary>E";
++	gtk_application_set_accels_for_action (GTK_APPLICATION (totem), "app.eject", (const char * const *) accels);
++    gtk_window_set_application (GTK_WINDOW (totem->win), GTK_APPLICATION (totem));
++}
++
+ /* Helper function to escape underscores in labels
+  * before putting them in menu items */
+ static char *
+Index: totem-3.16.0/src/totem-menu.h
+===================================================================
+--- totem-3.16.0.orig/src/totem-menu.h
++++ totem-3.16.0/src/totem-menu.h
+@@ -33,6 +33,9 @@ void totem_app_actions_setup (Totem *tot
+ void totem_sublang_update (Totem *totem);
+ void totem_sublang_exit (Totem *totem);
+ 
++gboolean totem_application_has_traditional_menus (Totem *totem);
++void totem_menu_setup (Totem *totem);
++
+ G_END_DECLS
+ 
+ #endif /* TOTEM_MENU_H */
+Index: totem-3.16.0/src/totem-object.c
+===================================================================
+--- totem-3.16.0.orig/src/totem-object.c
++++ totem-3.16.0/src/totem-object.c
+@@ -188,7 +188,11 @@ totem_object_app_activate (GApplication
+ 
+ 	totem_setup_file_monitoring (totem);
+ 	totem_setup_file_filters ();
+-	totem_app_menu_setup (totem);
++	if (totem_application_has_traditional_menus (totem))
++		totem_menu_setup(totem);
++	else
++		totem_app_menu_setup (totem);
++
+ 	/* totem_callback_connect (totem); XXX we do this later now, so it might look ugly for a short while */
+ 
+ 	totem_setup_window (totem);
+@@ -266,7 +270,6 @@ totem_object_app_handle_local_options (G
+ 				       GVariantDict *options)
+ {
+ 	GError *error = NULL;
+-
+ 	if (!g_application_register (application, NULL, &error)) {
+ 		g_warning ("Failed to register application: %s", error->message);
+ 		g_error_free (error);
+@@ -3807,16 +3810,18 @@ totem_callback_connect (TotemObject *tot
+ 	g_signal_connect (G_OBJECT (item), "toggled",
+ 			  G_CALLBACK (popup_menu_shown_cb), totem);
+ 	/* Cog wheel */
+-	item = totem->gear_button = totem_interface_create_header_button (totem->header,
+-									  gtk_menu_button_new (),
+-									  "open-menu-symbolic",
+-									  GTK_PACK_END);
+-	menu = (GMenuModel *) gtk_builder_get_object (totem->xml, "playermenu");
+-	gtk_menu_button_set_menu_model (GTK_MENU_BUTTON (item), menu);
+-	popover = gtk_menu_button_get_popover (GTK_MENU_BUTTON (item));
+-	gtk_popover_set_transitions_enabled (GTK_POPOVER (popover), FALSE);
+-	g_signal_connect (G_OBJECT (item), "toggled",
+-			  G_CALLBACK (popup_menu_shown_cb), totem);
++	if (!totem_application_has_traditional_menus (totem)) {
++		item = totem->gear_button = totem_interface_create_header_button (totem->header,
++										  gtk_menu_button_new (),
++										  "open-menu-symbolic",
++										  GTK_PACK_END);
++		menu = (GMenuModel *) gtk_builder_get_object (totem->xml, "playermenu");
++		gtk_menu_button_set_menu_model (GTK_MENU_BUTTON (item), menu);
++		popover = gtk_menu_button_get_popover (GTK_MENU_BUTTON (item));
++		gtk_popover_set_transitions_enabled (GTK_POPOVER (popover), FALSE);
++		g_signal_connect (G_OBJECT (item), "toggled",
++				  G_CALLBACK (popup_menu_shown_cb), totem);
++	}
+ 
+ 	/* Add button */
+ 	item = totem->add_button = totem_interface_create_header_button (totem->header,

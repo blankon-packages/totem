@@ -1,0 +1,133 @@
+From 1565ed6f1b3f14109e732a0f1889220abd488222 Mon Sep 17 00:00:00 2001
+From: Iain Lane <iain@orangesquash.org.uk>
+Date: Wed, 11 Feb 2015 12:20:38 +0000
+Subject: [PATCH 2/3] preferences: Respect gtk-dialogs-use-header setting
+
+This is construct-only so the construction of the dialog itself needs to
+move into code.
+---
+ data/preferences.ui     | 33 +++++++--------------------------
+ src/totem-object.c      | 17 ++++++++++++++---
+ src/totem-preferences.c |  9 ++++++++-
+ 3 files changed, 29 insertions(+), 30 deletions(-)
+
+diff --git a/data/preferences.ui b/data/preferences.ui
+index ce0dc73..fd6c970 100644
+--- a/data/preferences.ui
++++ b/data/preferences.ui
+@@ -76,30 +76,13 @@
+   <signal name="value-changed" handler="seek_slider_changed_cb"/>
+ </object>
+ 
+-<object class="GtkDialog" id="totem_preferences_window">
+-  <property name="title" translatable="yes">Preferences</property>
+-  <property name="type">GTK_WINDOW_TOPLEVEL</property>
+-  <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
+-  <property name="modal">False</property>
+-  <property name="resizable">False</property>
+-  <property name="destroy_with_parent">False</property>
+-  <property name="decorated">True</property>
+-  <property name="skip_taskbar_hint">False</property>
+-  <property name="skip_pager_hint">False</property>
+-  <property name="type_hint">dialog</property>
+-  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
+-  <property name="focus_on_map">True</property>
+-  <property name="urgency_hint">False</property>
+-  <property name="use-header-bar">1</property>
++<object class="GtkVBox" id="tpw_dialog_vbox">
++  <property name="visible">True</property>
++  <property name="homogeneous">False</property>
++  <property name="orientation">vertical</property>
++  <property name="border_width">0</property>
+ 
+-  <child internal-child="vbox">
+-    <object class="GtkVBox" id="tpw_dialog_vbox">
+-      <property name="visible">True</property>
+-      <property name="homogeneous">False</property>
+-      <property name="orientation">vertical</property>
+-      <property name="border_width">0</property>
+-
+-      <child>
++  <child>
+ 	<object class="GtkNotebook" id="tpw_notebook">
+ 	  <property name="visible">True</property>
+ 	  <property name="can_focus">True</property>
+@@ -1041,8 +1024,6 @@
+ 	  <property name="expand">False</property>
+ 	  <property name="fill">True</property>
+ 	</packing>
+-      </child>
+-    </object>
+   </child>
+- </object>
++</object>
+ </interface>
+diff --git a/src/totem-object.c b/src/totem-object.c
+index 5ec8255..86db9ed 100644
+--- a/src/totem-object.c
++++ b/src/totem-object.c
+@@ -161,6 +161,7 @@ static void
+ totem_object_app_activate (GApplication *app)
+ {
+ 	Totem *totem;
++	gboolean use_header;
+ 
+ 	totem = TOTEM_OBJECT (app);
+ 
+@@ -226,10 +227,20 @@ totem_object_app_activate (GApplication *app)
+ 
+ 	/* The prefs after the video widget is connected */
+ 	totem->prefs_xml = totem_interface_load ("preferences.ui", TRUE, NULL, totem);
+-	totem->prefs = GTK_WIDGET (gtk_builder_get_object (totem->prefs_xml, "totem_preferences_window"));
+ 
+-	gtk_window_set_modal (GTK_WINDOW (totem->prefs), TRUE);
+-	gtk_window_set_transient_for (GTK_WINDOW (totem->prefs), GTK_WINDOW(totem->win));
++	g_object_get (gtk_settings_get_default (),
++			"gtk-dialogs-use-header", &use_header,
++			NULL);
++
++	totem->prefs = gtk_widget_new (GTK_TYPE_DIALOG,
++			"modal", TRUE,
++			"resizable", FALSE,
++			"title", _("Preferences"),
++			"transient-for", GTK_WINDOW (totem->win),
++			"type-hint", GDK_WINDOW_TYPE_HINT_DIALOG,
++			"use-header-bar", use_header,
++			"window-position", GTK_WIN_POS_CENTER_ON_PARENT,
++			NULL);
+ 
+ 	totem_setup_preferences (totem);
+ 
+diff --git a/src/totem-preferences.c b/src/totem-preferences.c
+index f4ef108..cf7cd4e 100644
+--- a/src/totem-preferences.c
++++ b/src/totem-preferences.c
+@@ -217,6 +217,7 @@ totem_setup_preferences (Totem *totem)
+ 	guint i, hidden;
+ 	char *font, *encoding;
+ 	GObject *item;
++	GtkWidget *content_area;
+ 
+ 	static struct {
+ 		const char *name;
+@@ -232,10 +233,16 @@ totem_setup_preferences (Totem *totem)
+ 	};
+ 
+ 	g_return_if_fail (totem->settings != NULL);
++	g_return_if_fail (totem->prefs != NULL);
++
++	content_area = POBJ ("tpw_dialog_vbox");
++	g_return_if_fail (content_area != NULL);
++
++	gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG (totem->prefs))),
++			content_area);
+ 
+ 	bvw = totem_object_get_video_widget (totem);
+ 
+-	totem->prefs = PWID ("totem_preferences_window");
+ 	g_signal_connect (G_OBJECT (totem->prefs), "response",
+ 			G_CALLBACK (gtk_widget_hide), NULL);
+ 	g_signal_connect (G_OBJECT (totem->prefs), "delete-event",
+-- 
+2.1.4
+
